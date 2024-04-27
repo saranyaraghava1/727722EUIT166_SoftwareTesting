@@ -1,0 +1,127 @@
+import java.io.File;
+// import java.io.File;
+import java.io.FileInputStream;
+
+import org.apache.commons.io.FileUtils;
+// import java.io.FileOutputStream;
+// import java.io.IOException;
+// import java.nio.file.StandardCopyOption;
+// import java.util.NoSuchElementException;
+// import java.util.logging.FileHandler;
+// import org.apache.commons.io.FileUtils;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+// import org.openqa.selenium.OutputType;
+// import org.openqa.selenium.TakesScreenshot;
+//import org.junit.Test;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+// import org.openqa.selenium.WebDriverException;
+// import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+// import org.openqa.selenium.chrome.ChromeOptions;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
+import com.aventstack.extentreports.reporter.ExtentSparkReporter;
+// import com.aventstack.extentreports.util.Assert;
+// import com.google.common.io.Files;
+
+//import com.relevantcodes.extentreports.ExtentReports;
+//import com.relevantcodes.extentreports.ExtentTest;
+//import com.relevantcodes.extentreports.LogStatus;
+import io.github.bonigarcia.wdm.WebDriverManager;
+public class AppTest {
+    WebDriver driver;
+    static ExtentReports report;
+    static ExtentTest test;
+
+    @BeforeTest
+    public void Testsetup() throws Exception {
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://groww.in/");
+        ExtentSparkReporter r = new ExtentSparkReporter("D:\\report.html");
+        report = new ExtentReports();
+        report.attachReporter(r);
+
+    }
+
+    @Test
+    public void Test() throws Exception {
+        test = report.createTest("test");
+        // FileInputStream fs = new FileInputStream("D:\\dbankdemo1.xlsx");
+        // XSSFWorkbook workbook = new XSSFWorkbook(fs);
+        // XSSFSheet sheet = workbook.getSheet("Sheet2");// name of the sheet
+        // XSSFRow row1 = sheet.getRow(1);// 0->heading,1->value
+        // String username = row1.getCell(0).getStringCellValue();
+        // String password = row1.getCell(1).getStringCellValue();
+        // System.out.println(username);
+        // System.out.println(password);
+        // Thread.sleep(5000);
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("window.scrollBy(0,4000)");
+        driver.findElement(By.linkText("Calculators")).click();
+        Thread.sleep(2000);
+        TakesScreenshot screenshot = (TakesScreenshot) driver;
+        File source = screenshot.getScreenshotAs(OutputType.FILE);
+        String screenShotPath = "./SeleniumScreenshots/Screen.png";
+        FileUtils.copyFile(source, new File(screenShotPath));
+        test.addScreenCaptureFromPath(screenShotPath);
+        js.executeScript("window.scrollBy(0,650)");
+        Thread.sleep(2000);
+        driver.findElement(By.xpath("//*[@id=\"root\"]/div[2]/div[2]/a[15]/div/p[1]")).click();
+        Thread.sleep(2000);
+        driver.findElement(By.id("LOAN_AMOUNT")).clear();
+        FileInputStream fs = new FileInputStream("D:\\dbankdemo1.xlsx");
+        XSSFWorkbook workbook = new XSSFWorkbook(fs);
+        XSSFSheet sheet = workbook.getSheet("Sheet2");// name of the sheet
+        XSSFRow row1 = sheet.getRow(1);// 0->heading,1->value
+        double username = row1.getCell(0).getNumericCellValue();
+        System.out.println(username);
+        driver.findElement(By.id("LOAN_AMOUNT")).sendKeys(String.valueOf(username));
+        test.log(Status.PASS, "Passed");
+        Thread.sleep(2000);
+        driver.findElement(By.id("RATE_OF_INTEREST")).clear();
+        Thread.sleep(2000);
+        driver.findElement(By.id("RATE_OF_INTEREST")).sendKeys("8");
+        Thread.sleep(2000);
+        driver.findElement(By.id("LOAN_TENURE")).clear();
+        Thread.sleep(2000);
+        driver.findElement(By.id("LOAN_TENURE")).sendKeys("25");
+        Thread.sleep(2000);
+        WebElement keywordElement = driver
+                .findElement(By.xpath("//*[@id=\"root\"]/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div/p"));
+        if (keywordElement != null) {
+            System.out.println("Keyword is present on the page.");
+        } else {
+            System.out.println("Keyword is not present on the page.");
+        }
+        // File screenshot = ImageGrab.grab();
+        // screenshot.save("screenshot.png");
+        // // test.log()
+        // test.log(Status.PASS, "Passed");
+        // driver.findElement(By.id("password")).sendKeys(password);
+        // driver.findElement(By.id("submit")).click();
+        Thread.sleep(5000);
+    }
+
+    @AfterTest
+    public void Testend() {
+        report.flush();
+        driver.quit();
+    }
+}
