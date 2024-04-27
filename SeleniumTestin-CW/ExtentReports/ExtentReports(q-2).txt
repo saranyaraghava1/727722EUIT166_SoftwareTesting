@@ -17,6 +17,10 @@ import org.openqa.selenium.remote.codec.w3c.W3CHttpCommandCodec;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
+import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 
@@ -26,14 +30,20 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 public class AppTest 
 {
     WebDriver driver;
+    static ExtentReports report;
+    static ExtentTest test;
     @BeforeTest
     public void setup() {
         WebDriverManager.chromedriver().setup();
         driver = new ChromeDriver();
         driver.get("https://www.ixigo.com/");
+     ExtentSparkReporter r = new ExtentSparkReporter("D:\\report.html");
+        report = new ExtentReports();
+        report.attachReporter(r);
     }
     @Test(priority = 0)
     public void testCase1() throws InterruptedException, IOException {
+        test = report.createTest("test");
         driver.findElement(By.xpath("/html/body/main/div[2]/div[1]/div[3]/div[1]/div[1]/div/button[2]")).click();
         driver.findElement(By.xpath("/html/body/main/div[2]/div[1]/div[3]/div[2]/div[1]/div[1]/div[1]/div")).click();
         WebElement from = driver.findElement(By.xpath("/html/body/main/div[2]/div[1]/div[3]/div[2]/div[1]/div[1]/div[2]/div/div/div[2]/input"));
@@ -46,6 +56,7 @@ public class AppTest
         Thread.sleep(2000);
         driver.findElement(By.xpath("/html/body/main/div[2]/div[1]/div[3]/div[2]/div[1]/div[1]/div[3]/div[1]/li")).click();
         driver.findElement(By.xpath("/html/body/main/div[2]/div[1]/div[3]/div[2]/div[1]/div[2]/div[1]/div")).click();
+       test.log(Status.PASS, "Passed");
         WebElement to = driver.findElement(By.xpath("/html/body/main/div[2]/div[1]/div[3]/div[2]/div[1]/div[2]/div[2]/div/div/div[2]/input"));
         String toWhere = row.getCell(1).getStringCellValue();
         to.sendKeys(toWhere);
